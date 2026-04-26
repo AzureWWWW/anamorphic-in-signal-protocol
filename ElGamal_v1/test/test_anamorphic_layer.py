@@ -13,8 +13,8 @@ Scenarios:
   8. Signal ratchet state inspection.
 """
 
-from anamorphic_layer import AnamorphicSession
-from src_anamorphic_ElGamal.receiver_am import ReceiverAnamorphicEncryption
+from ElGamal_v1.anamorphic_layer import AnamorphicSession
+from ElGamal_v1.src_anamorphic_ElGamal.receiver_am import ReceiverAnamorphicEncryption
 
 
 def hr():

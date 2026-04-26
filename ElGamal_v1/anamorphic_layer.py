@@ -49,8 +49,8 @@ Threat coverage summary:
 
 import json
 
-from signal_layer import SignalClient
-from src_anamorphic_ElGamal.receiver_am import ReceiverAnamorphicEncryption
+from ElGamal_v1.signal_layer import SignalClient
+from ElGamal_v1.src_anamorphic_ElGamal.receiver_am import ReceiverAnamorphicEncryption
 
 
 # 512 bits is fast enough for prototype iteration. Real deployment: >= 2048.

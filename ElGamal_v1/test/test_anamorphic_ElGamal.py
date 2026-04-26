@@ -9,7 +9,7 @@ API:
 No bytes, no int. Everything is str.
 """
 
-from src_anamorphic_ElGamal.receiver_am import ReceiverAnamorphicEncryption
+from ElGamal_v1.src_anamorphic_ElGamal.receiver_am import ReceiverAnamorphicEncryption
 
 LAMBDA_BITS = 512
 

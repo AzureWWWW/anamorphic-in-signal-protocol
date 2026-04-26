@@ -1,4 +1,4 @@
-from src_anamorphic_ElGamal.utils import pow_mod, generate_prime, get_random_int
+from ElGamal_v1.src_anamorphic_ElGamal.utils import pow_mod, generate_prime, get_random_int
 from Crypto.Util import number
 
 LENGTH_PREFIX_BYTES = 2  # supports messages up to 65535 bytes

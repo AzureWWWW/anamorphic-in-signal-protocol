@@ -29,9 +29,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 import argparse
 import asyncio
 
-from anamorphic_layer import AnamorphicSession
-from wire import send_msg, recv_msg
-from bundle_codec import (
+from ElGamal_v1.anamorphic_layer import AnamorphicSession
+from ElGamal_v1.CLI.wire import send_msg, recv_msg
+from ElGamal_v1.CLI.bundle_codec import (
     bundle_to_dict, bundle_from_dict, aPK_to_dict, aPK_from_dict,
 )
 

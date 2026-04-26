@@ -1,6 +1,6 @@
-from src_anamorphic_ElGamal.base_pke import ElGamalPKE
-from src_anamorphic_ElGamal.nizk_mock import NIZK_Mock
-from src_anamorphic_ElGamal.utils import get_random_int
+from ElGamal_v1.src_anamorphic_ElGamal.base_pke import ElGamalPKE
+from ElGamal_v1.src_anamorphic_ElGamal.nizk_mock import NIZK_Mock
+from ElGamal_v1.src_anamorphic_ElGamal.utils import get_random_int
 
 class ReceiverAnamorphicEncryption:
     def __init__(self):

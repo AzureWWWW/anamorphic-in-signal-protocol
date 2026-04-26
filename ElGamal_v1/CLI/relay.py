@@ -25,7 +25,7 @@ import asyncio
 import logging
 from collections import defaultdict
 
-from wire import send_msg, recv_msg
+from ElGamal_v1.CLI.wire import send_msg, recv_msg
 
 
 logger = logging.getLogger("relay")

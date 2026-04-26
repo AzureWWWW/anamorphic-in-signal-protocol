@@ -1,4 +1,4 @@
-from src_anamorphic_ElGamal.utils import sha256_hash, generate_random_bytes
+from ElGamal_v1.src_anamorphic_ElGamal.utils import sha256_hash, generate_random_bytes
 
 class NIZK_Mock:
     def __init__(self):

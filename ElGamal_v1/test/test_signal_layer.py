@@ -12,7 +12,7 @@ Run:
     python test_phase1.py
 """
 
-from signal_layer import SignalClient
+from ElGamal_v1.signal_layer import SignalClient
 
 
 def _print_state(label: str, client: SignalClient, peer: str) -> None:
