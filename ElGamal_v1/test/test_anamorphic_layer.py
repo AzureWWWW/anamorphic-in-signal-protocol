@@ -1,5 +1,5 @@
 """
-test_phase3.py — End-to-end anamorphic messaging over Signal.
+test_anamorphic_layer.py — End-to-end anamorphic messaging over Signal.
 
 Scenarios:
   1. Setup: key generation, pre-key bundles, aPK exchange.

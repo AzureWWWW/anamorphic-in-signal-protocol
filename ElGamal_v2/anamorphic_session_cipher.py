@@ -1,6 +1,4 @@
 """
-anamorphic_session_cipher.py — Approach B: replace Signal's AEAD with anamorphic.
-
 Subclasses python-axolotl's SessionCipher and overrides the two methods that
 form the AEAD seam: getCiphertext (encrypt-bytes) and getPlaintext (decrypt-
 bytes). Everything else inherited unchanged.
@@ -15,17 +13,6 @@ What we replace:
     where k_cover, k_hidden, nonce_*, y0, y1 are all derived from the
     ratchet's per-message IV via HKDF — so the entire encryption is anchored
     in Signal's forward-secure key schedule.
-
-What we keep:
-  - HMAC-SHA256 MAC over the message (Signal's existing integrity).
-  - Protobuf framing of WhisperMessage / PreKeyWhisperMessage.
-  - Double Ratchet, X3DH, out-of-order handling, skipped-key cache.
-
-API differences from parent SessionCipher:
-  - encrypt_pair(cover, hidden) instead of encrypt(plaintext)
-  - decrypt_pair_msg / decrypt_pair_pkmsg return (cover, hidden) tuples
-  - The parent's encrypt() / decryptMsg() / decryptPkmsg() are no longer
-    intended to be called directly.
 """
 
 import json
@@ -47,22 +34,12 @@ _FORMAT_VERSION = b"\x01"
 
 
 def _derive_inner_secrets(message_iv: bytes, p0_bits: int, p1_bits: int):
-    """From the ratchet's per-message IV (16 bytes), deterministically derive
-    everything the anamorphic-AEAD needs:
-      - k_cover, k_hidden     (32 bytes each, AES-256 keys)
-      - nonce_cover, nonce_hidden (12 bytes each, AES-GCM nonces)
-      - y0, y1                (ElGamal exponents in [2, p-2] for each modulus)
-
-    Tying it all to the ratcheted IV means each message's encryption is
-    deterministic in ratchet state. Forward-secrecy of the ratchet propagates
-    to forward-secrecy of the anamorphic layer.
-    """
     # Pull a generous amount; we'll slice it.
     out = HKDF(
         algorithm=hashes.SHA256(),
         length=2 * _AES_KEY_BYTES + 2 * _NONCE_BYTES + 2 * 64,  # 64 bytes per ElGamal exponent
         salt=None,
-        info=b"anamorphic-aead-v1",
+        info=b"anamorphic-aead-v2",
     ).derive(message_iv)
 
     pos = 0

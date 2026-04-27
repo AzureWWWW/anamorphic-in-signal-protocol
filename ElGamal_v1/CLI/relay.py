@@ -1,25 +1,3 @@
-"""
-relay.py — Message relay for anamorphic CLI chat.
-
-Protocol phases:
-  A. Boot (every client does this on startup):
-       register -> publish_bundle
-     After this, the client is listed in the directory and visible to others.
-  B. Start conversation (each user initiates separately for each peer):
-       fetch_bundle -> send/receive messages
-     The relay treats send/receive as opaque bytes — never sees plaintext.
-
-Relay roles:
-  - Directory: stores Signal pre-key bundles + anamorphic aPKs.
-  - Router:    forwards "send" messages to the recipient (or queues).
-  - Mailbox:   holds queued messages for offline recipients; flushes on reconnect.
-
-The relay is fully untrusted by the crypto layer. It could drop, reorder, or
-fabricate identity info, but it cannot read plaintext.
-
-State is in-memory only. Restart = clear everything.
-"""
-
 import argparse
 import asyncio
 import logging

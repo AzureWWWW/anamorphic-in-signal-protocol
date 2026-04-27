@@ -1,25 +1,3 @@
-"""
-client.py — Anamorphic chat CLI.
-
-Protocol:
-  Phase A (boot, automatic on startup):
-    connect -> register -> publish_bundle
-  Phase B (peer selection, user-driven):
-    prompt for peer name, fetch_bundle, establish session
-  Phase C (chat):
-    cover/hidden prompts, send and receive messages
-
-Usage:
-    python client.py <my_name> [--host H] [--port P]
-
-Commands during chat:
-    /peers        list other registered users
-    /switch NAME  switch to chatting with a different peer
-    /quit         exit
-
-A blank line at the cover prompt is a no-op (just prompts again).
-"""
-
 import os
 os.environ.setdefault("PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION", "python")
 
@@ -58,10 +36,7 @@ class Client:
         # Current chat peer (None until user picks one).
         self.peer: str | None = None
 
-        # FIFO queues of pending responses, keyed by response type. When we
-        # issue a request, we append a future to the corresponding list; when
-        # a response of that type arrives in recv_loop, we pop the oldest
-        # future and set it. This handles multiple in-flight requests cleanly.
+        # FIFO queues of pending responses, keyed by response type
         self._awaiting_bundle: list[asyncio.Future] = []
         self._awaiting_peers: list[asyncio.Future] = []
 
@@ -265,7 +240,7 @@ class Client:
 
     async def _on_delivery(self, msg: dict) -> None:
         if not self._in_chat:
-            # Buffer for later. Just show a hint so the user isn't surprised.
+            # Buffer for later. Just show a hint so the user knows there is new msg.
             self._pending_deliveries.append(msg)
             sender = msg.get("from", "?")
             print(f"\n[new message from {sender!r} — "

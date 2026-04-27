@@ -1,41 +1,3 @@
-"""
-anamorphic_session.py — v2 (Approach B): Signal session with anamorphic AEAD.
-
-This is the v2 counterpart to phase2/anamorphic_session.py. The shape is
-similar — an AnamorphicSession is one user's combined Signal + anamorphic
-state — but the internals differ:
-
-  v1 (Approach A): anamorphic encryption was a wrapper layer, applied to
-                   plaintext before handing the bytes to a vanilla SignalClient
-                   (which then did Signal's normal AES-CBC + HMAC).
-
-  v2 (Approach B): anamorphic encryption replaces Signal's AES-CBC. The
-                   AnamorphicSessionCipher subclass of python-axolotl's
-                   SessionCipher does the anamorphic AEAD inline. There is
-                   no double-wrapping — only one symmetric encryption per
-                   message (AES-GCM, with keys derived from Signal's ratchet
-                   IV via HKDF, encrypted under the anamorphic ElGamal
-                   keypair).
-
-Public API matches v1 closely so the existing CLI/relay stack drops in:
-
-    session = AnamorphicSession(name)
-    session.publish_signal_bundle(pre_key_id, signed_pre_key_id) -> PreKeyBundle
-    session.public_anamorphic() -> aPK dict
-    session.provision_peer(peer_name, peer_aPK)
-    session.start_signal_session(peer_name, peer_signal_bundle)
-    session.send_to(peer_name, cover, hidden) -> wire bytes
-    session.receive_from(peer_name, wire_bytes) -> (cover, hidden)
-    session.receive_cover_only(peer_name, wire_bytes) -> str  # demo helper
-
-Key differences from v1:
-  - send_to / receive_from operate on Signal message objects directly (we
-    serialize/deserialize at this layer) rather than wrapping bytes through
-    a separate Signal layer.
-  - cover and hidden have no length cap — the AEAD layer's AES-GCM handles
-    arbitrary-length plaintexts.
-"""
-
 import os
 os.environ.setdefault("PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION", "python")
 
@@ -51,19 +13,11 @@ from ElGamal_v2.anamorphic_session_cipher import AnamorphicSessionCipher
 from ElGamal_v2.src_anamorphic_ElGamal.receiver_am import ReceiverAnamorphicEncryption
 
 
-# Match the demo size used elsewhere; bump to >= 2048 for real deployment.
+# Change DEFAULT_LAMBDA_BITS to enhance security of ElGamal.
 DEFAULT_LAMBDA_BITS = 512
 
 
 class AnamorphicSession:
-    """One user's combined Signal + anamorphic state (v2).
-
-    Owns:
-      - An InMemoryAxolotlStore (Signal's identity, pre-keys, sessions).
-      - The user's anamorphic keypair (aPK, aSK, dkey).
-      - Per-peer AnamorphicSessionCipher instances (lazily constructed).
-      - A table of known peer aPKs.
-    """
 
     DEVICE_ID = 1  # No multi-device support in this prototype.
 
@@ -116,10 +70,6 @@ class AnamorphicSession:
     # ---- Learning about peers ----
 
     def provision_peer(self, peer_name: str, peer_aPK: dict) -> None:
-        """Record a peer's aPK so we can encrypt anamorphic messages to them.
-        Discards any cached cipher for that peer so the next send/receive
-        rebuilds with the new aPK.
-        """
         self._peer_aPKs[peer_name] = peer_aPK
         # Drop the cached cipher (its peer_aPK reference may be stale).
         self._ciphers.pop(peer_name, None)
@@ -169,7 +119,7 @@ class AnamorphicSession:
     # ---- Sending ----
 
     def send_to(self, peer_name: str, cover: str, hidden: str) -> bytes:
-        """Encrypt (cover, hidden) for peer; return wire bytes ready to ship.
+        """Encrypt (AESkey_cover, AESkey_hidden) for peer; return wire bytes ready to ship.
 
         Wire bytes are the serialized form of the Signal message object
         (PreKeyWhisperMessage on the first send to a new peer, WhisperMessage
@@ -208,26 +158,19 @@ class AnamorphicSession:
 
     def receive_from(self, peer_name: str, wire_bytes: bytes) -> tuple[str, str]:
         """Decrypt a Signal-wrapped anamorphic message. Returns (cover, hidden).
-
-        Both halves are recovered because this user holds their own aSK and dkey.
         """
         # Decryption doesn't require peer_aPK (we use only our own keys for
         # the AES nonce derivation), so peer_aPK can be None.
         cipher = self._get_cipher(peer_name, require_peer_aPK=False)
         result = self._decrypt_signal_msg(cipher, wire_bytes, want_pair=True)
-        return result  # type: ignore[return-value]
+        return result
 
     def receive_cover_only(self, peer_name: str, wire_bytes: bytes) -> str:
         """Decrypt and return only the cover, discarding hidden.
-
-        Illustrative helper: simulates what would be recoverable if dkey were
-        not available. In v2 the cipher's getPlaintext decrypts both halves
-        regardless (it has both keys), so this is purely a presentation choice
-        — it's not a faithful coercion simulation. Same caveat as v1.
         """
         cipher = self._get_cipher(peer_name, require_peer_aPK=False)
         result = self._decrypt_signal_msg(cipher, wire_bytes, want_pair=False)
-        return result  # type: ignore[return-value]
+        return result
 
     # ---- Inspection ----
 

@@ -1,5 +1,5 @@
 """
-test_phase1.py — Multi-message exchange demonstrating Signal's ratchet.
+test_signal_layer.py — Multi-message exchange demonstrating Signal's ratchet.
 
 Uses the signal_layer module. Shows:
   - X3DH session setup via pre-key bundle
@@ -8,8 +8,6 @@ Uses the signal_layer module. Shows:
   - Out-of-order delivery (library caches skipped message keys)
   - Longer back-and-forth (frequent DH ratchet steps)
 
-Run:
-    python test_phase1.py
 """
 
 from ElGamal_v1.signal_layer import SignalClient

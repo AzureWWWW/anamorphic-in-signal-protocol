@@ -1,5 +1,5 @@
 """
-test_str_api.py — Verify the simplified str-only API.
+test_anamorphic_ElGamal.py — Verify the simplified str-only API.
 
 API:
   AnamorphicEncrypt(dkey, cover: str, hidden: str) -> ciphertext dict

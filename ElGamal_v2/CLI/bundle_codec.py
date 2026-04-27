@@ -1,11 +1,3 @@
-"""
-bundle_codec.py — Serialize/deserialize python-axolotl PreKeyBundle to JSON-safe dicts.
-
-PreKeyBundle objects contain ECPublicKey/IdentityKey instances that don't
-serialize directly to JSON. We pull out the raw wire bytes (from .serialize()
-on each key) as hex strings, then reconstruct the objects on the other side.
-"""
-
 import os
 os.environ.setdefault("PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION", "python")
 
@@ -49,8 +41,7 @@ def bundle_from_dict(d: dict) -> PreKeyBundle:
 
 
 # ---- Anamorphic aPK <-> dict ----
-# aPK contains ElGamal public keys which are already dicts of Python ints.
-# We just need to encode the ints as hex strings for JSON.
+# Encode and decode the ints as hex strings for JSON.
 
 def aPK_to_dict(aPK: dict) -> dict:
     def pack_pk(pk):

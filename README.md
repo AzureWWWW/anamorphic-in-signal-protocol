@@ -73,9 +73,6 @@ protobuf framing all stay. Only `SessionCipher.getCiphertext` and
 
 ## Running
 
-See `README-v1.md` for the v1 CLI walkthrough, and `README-v2.md` for v2
-test execution.
-
 ### Dependencies
  
 - Python 3.10+
